@@ -38,6 +38,7 @@ import io.skyway.Peer.CallOption;
 import io.skyway.Peer.MediaConnection;
 import io.skyway.Peer.OnCallback;
 import io.skyway.Peer.Peer;
+import io.skyway.Peer.PeerError;
 import io.skyway.Peer.PeerOption;
 
 public class MainActivity extends AppCompatActivity {
@@ -176,6 +177,18 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
                 Log.d(TAG, "CALL Event is Received and NOT MediaConnection");
+            }
+        });
+
+        peer.on(Peer.PeerEventEnum.ERROR, new OnCallback() {
+            @Override
+            public void onCallback(Object o) {
+                Log.d(TAG, "Peer Error Occured");
+                Log.d(TAG, o.getClass().getName());
+                if (o instanceof PeerError) {
+                    PeerError error = (PeerError) o;
+                    Log.d(TAG, error.message);
+                }
             }
         });
     }
@@ -354,15 +367,43 @@ public class MainActivity extends AppCompatActivity {
         connection.on(MediaConnection.MediaEventEnum.CLOSE, new OnCallback() {
             @Override
             public void onCallback(Object o) {
-                Log.d(TAG, "Close Event is Received");
+                Log.d(TAG, "MediaConnection Close Event is Received");
                 closeConnection();
+            }
+        });
+        connection.on(MediaConnection.MediaEventEnum.ERROR, new OnCallback() {
+            @Override
+            public void onCallback(Object o) {
+                Log.d(TAG, "MediaConnection Error Occured");
+                Log.d(TAG, o.getClass().getName());
+                if (o instanceof PeerError) {
+                    PeerError error = (PeerError) o;
+                    Log.d(TAG, error.message);
+                }
+            }
+        });
+        connection.on(MediaConnection.MediaEventEnum.STREAM, new OnCallback() {
+            @Override
+            public void onCallback(Object o) {
+                Log.d(TAG, "MediaConnection STREAM Occured");
+                Log.d(TAG, o.getClass().getName());
+                if (o instanceof MediaStream) {
+                    MediaStream stream = (MediaStream) o;
+                    if (MainActivity.this.connection != null) {
+                        MainActivity.this.connection.answer(stream);
+                    }
+                }
             }
         });
     }
 
+    private void removeConnectionCallback(MediaConnection connection) {
+        connection.on(MediaConnection.MediaEventEnum.CLOSE, null);
+    }
 
     private void closeConnection() {
         if (connection != null) {
+            removeConnectionCallback(connection);
             connection.close();
             runOnUiThread(new Runnable() {
                 @Override
