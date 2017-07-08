@@ -45,10 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private Peer peer;
     private MediaConnection connection;
     private String currentId;
-    private TextView idTextView;
-    private ListView listView;
-    private MyAdapter adapter;
-    private List<String> idList = new ArrayList<String>();
+    public List<String> idList = new ArrayList<String>();
     private MediaPlayer player;
 
     @Override
@@ -68,41 +65,6 @@ public class MainActivity extends AppCompatActivity {
         options.domain = BuildConfig.SKYWAY_HOST;
         peer = new Peer(this, options);
         Navigator.initialize(peer);
-
-        idTextView = (TextView) findViewById(R.id.id_textview);
-        listView = (ListView) findViewById(R.id.listview);
-
-        adapter = new MyAdapter(this, 0, idList);
-        listView.setAdapter(adapter);
-
-        Button refreshBtn = (Button) findViewById(R.id.refresh_btn);
-        refreshBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                refreshPeerList();
-            }
-        });
-
-        Button closeBtn = (Button) findViewById(R.id.close_btn);
-        closeBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                closeConnection();
-            }
-        });
-
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                String selectedPeerId = idList.get(i);
-                if (selectedPeerId == null) {
-                    Log.d(TAG, "Selected PeerId == null");
-                    return;
-                }
-                Log.d(TAG, "SelectedPeerId: " + selectedPeerId);
-                call(selectedPeerId);
-            }
-        });
 
         showCurrentPeerId();
 
@@ -144,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
                                             runOnUiThread(new Runnable() {
                                                 @Override
                                                 public void run() {
-                                                    idTextView.setText("受信中");
+                                                    // TODO: onStartConnection
                                                 }
                                             });
 
@@ -241,7 +203,7 @@ public class MainActivity extends AppCompatActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            idTextView.setText("ID: " + currentId);
+                            // TODO: onSetId
                         }
                     });
                 }
@@ -249,7 +211,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void refreshPeerList() {
+    public void refreshPeerList() {
         Log.d(TAG, "Refreshing");
         peer.listAllPeers(new OnCallback() {
             @Override
@@ -269,7 +231,7 @@ public class MainActivity extends AppCompatActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            adapter.notifyDataSetChanged();
+                            // TODO: onListChange
                         }
                     });
                 }
@@ -277,7 +239,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void call(String peerId) {
+    public void call(String peerId) {
         Log.d(TAG, "Calling to id:" + peerId);
         if (peer == null) {
             Log.i(TAG, "Call but peer is null");
@@ -315,7 +277,7 @@ public class MainActivity extends AppCompatActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                idTextView.setText("発信中");
+                // TODO: onStartConnection
             }
         });
 
@@ -341,13 +303,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void closeConnection() {
+    public void closeConnection() {
         if (connection != null) {
             connection.close();
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    idTextView.setText("通話終了");
+                    // TODO: onCloseConnection
                 }
             });
             MainActivity.this.connection = null;
@@ -382,7 +344,7 @@ public class MainActivity extends AppCompatActivity {
         player = null;
     }
 
-    private class MyAdapter extends ArrayAdapter<String> {
+    public static class MyAdapter extends ArrayAdapter<String> {
         private LayoutInflater inflater;
 
         MyAdapter(@NonNull Context context, @LayoutRes int resource, @NonNull List<String> objects) {
