@@ -3,6 +3,7 @@ package jp.ac.u_tokyo.phoneappsample;
 import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -63,11 +64,7 @@ public class MainActivity extends AppCompatActivity {
         checkAudioPermission();
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
-        PeerOption options = new PeerOption();
-        options.key = BuildConfig.SKYWAY_API_KEY;
-        options.domain = BuildConfig.SKYWAY_HOST;
-        peer = new Peer(this, options);
-        Navigator.initialize(peer);
+        initPeer();
 
         idTextView = (TextView) findViewById(R.id.id_textview);
         listView = (ListView) findViewById(R.id.listview);
@@ -88,6 +85,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 closeConnection();
+            }
+        });
+
+        Button musicBtn = (Button) findViewById(R.id.music_btn);
+        musicBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showMusicActivity();
             }
         });
 
@@ -182,6 +187,17 @@ public class MainActivity extends AppCompatActivity {
             peer = null;
         }
         stopMusic();
+    }
+
+    private void initPeer(){
+        if (peer != null) {
+            return;
+        }
+        PeerOption options = new PeerOption();
+        options.key = BuildConfig.SKYWAY_API_KEY;
+        options.domain = BuildConfig.SKYWAY_HOST;
+        peer = new Peer(this, options);
+        Navigator.initialize(peer);
     }
 
     private void checkAudioPermission() {
@@ -380,6 +396,11 @@ public class MainActivity extends AppCompatActivity {
         player.reset();
         player.release();
         player = null;
+    }
+
+    private void showMusicActivity(){
+        Intent intent = new Intent(MainActivity.this, MusicActivity.class);
+        startActivity(intent);
     }
 
     private class MyAdapter extends ArrayAdapter<String> {
