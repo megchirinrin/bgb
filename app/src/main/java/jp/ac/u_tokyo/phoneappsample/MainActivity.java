@@ -2,6 +2,7 @@ package jp.ac.u_tokyo.phoneappsample;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -10,6 +11,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -111,7 +113,8 @@ public class MainActivity extends AppCompatActivity {
             public void onCallback(Object o) {
                 Log.d(TAG, "CALL Event is Received");
                 if (o instanceof MediaConnection) {
-                    MediaConnection connection = (MediaConnection) o;
+                    Log.d(TAG, "CALL Event is Received and MediaConnection");
+                    final MediaConnection connection = (MediaConnection) o;
 
                     if (MainActivity.this.connection != null) {
                         Log.d(TAG, "connection is already created");
@@ -119,25 +122,51 @@ public class MainActivity extends AppCompatActivity {
                         return;
                     }
 
+                    Log.d(TAG, "CALL Dialog is showing");
                     // TODO: show dialog
-
-                    MediaStream stream = MainActivity.this.getMediaStream();
-
-                    connection.answer(stream);
-
-                    setConnectionCallback(connection);
-                    startMusic();
 
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            idTextView.setText("受信中");
+                            new AlertDialog.Builder(MainActivity.this)
+                                    .setTitle("着信アリ")
+                                    .setMessage(connection.connectionId)
+                                    .setPositiveButton("出たい？", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i) {
+                                            MediaStream stream = MainActivity.this.getMediaStream();
+
+                                            connection.answer(stream);
+
+                                            setConnectionCallback(connection);
+                                            startMusic();
+
+                                            runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    idTextView.setText("受信中");
+                                                }
+                                            });
+
+                                            MainActivity.this.connection = connection;
+                                            Log.d(TAG, "CALL Event is Received and Set");
+                                        }
+                                    })
+                                    .setNegativeButton("出たくない？", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i) {
+                                            connection.close();
+                                            Log.d(TAG, "CALL Event is Received and closed");
+                                        }
+                                    })
+                                    .show();
+                            Log.d(TAG, "CALL Dialog is shown");
                         }
                     });
 
-                    MainActivity.this.connection = connection;
-                    Log.d(TAG, "CALL Event is Received and Set");
+                    return;
                 }
+                Log.d(TAG, "CALL Event is Received and NOT MediaConnection");
             }
         });
     }
@@ -323,6 +352,8 @@ public class MainActivity extends AppCompatActivity {
             });
             MainActivity.this.connection = null;
             Log.d(TAG, "Connection is Closed");
+
+            stopMusic();
         }
     }
 
