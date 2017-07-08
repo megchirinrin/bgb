@@ -20,6 +20,8 @@ public class MainFragment extends Fragment {
 
     private TextView idTextView;
     private ListView listView;
+    private Button refreshBtn;
+    private Button closeBtn;
     private MainActivity.MyAdapter adapter;
     public MainActivity mainActivity;
 
@@ -38,14 +40,7 @@ public class MainFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-    }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_main, container, false);
-        idTextView = (TextView) view.findViewById(R.id.id_textview);
-        listView = (ListView) view.findViewById(R.id.listview);
         adapter = new MainActivity.MyAdapter(this.mainActivity, 0, this.mainActivity.idList);
         listView.setAdapter(adapter);
 
@@ -62,7 +57,6 @@ public class MainFragment extends Fragment {
             }
         });
 
-        Button refreshBtn = (Button) view.findViewById(R.id.refresh_btn);
         refreshBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -70,13 +64,25 @@ public class MainFragment extends Fragment {
             }
         });
 
-        Button closeBtn = (Button) view.findViewById(R.id.close_btn);
         closeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 MainFragment.this.mainActivity.closeConnection();
             }
         });
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_main, container, false);
+        idTextView = (TextView) view.findViewById(R.id.id_textview);
+        listView = (ListView) view.findViewById(R.id.listview);
+
+        refreshBtn = (Button) view.findViewById(R.id.refresh_btn);
+
+         closeBtn = (Button) view.findViewById(R.id.close_btn);
+
 
         return view;
     }

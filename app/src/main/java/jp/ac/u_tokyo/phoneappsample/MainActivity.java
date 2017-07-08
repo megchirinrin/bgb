@@ -9,11 +9,17 @@ import android.media.MediaPlayer;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -48,6 +54,8 @@ public class MainActivity extends AppCompatActivity {
     public List<String> idList = new ArrayList<String>();
     private MediaPlayer player;
 
+    private MainFragment mainFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,6 +73,15 @@ public class MainActivity extends AppCompatActivity {
         options.domain = BuildConfig.SKYWAY_HOST;
         peer = new Peer(this, options);
         Navigator.initialize(peer);
+
+        mainFragment = MainFragment.newInstance(this);
+
+        FragmentManager manager = getSupportFragmentManager();
+        ViewPager viewPager = (ViewPager) findViewById(R.id.viewPager);
+        MyFragmentPageAdapter adapter = new MyFragmentPageAdapter(manager, this);
+        viewPager.setAdapter(adapter);
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabLayout);
+        tabLayout.setupWithViewPager(viewPager);
 
         showCurrentPeerId();
 
@@ -85,7 +102,6 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     Log.d(TAG, "CALL Dialog is showing");
-                    // TODO: show dialog
 
                     runOnUiThread(new Runnable() {
                         @Override
@@ -106,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
                                             runOnUiThread(new Runnable() {
                                                 @Override
                                                 public void run() {
-                                                    // TODO: onStartConnection
+                                                    MainActivity.this.mainFragment.onStartConnection();
                                                 }
                                             });
 
@@ -203,7 +219,7 @@ public class MainActivity extends AppCompatActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            // TODO: onSetId
+                            MainActivity.this.mainFragment.onSetId(currentId);
                         }
                     });
                 }
@@ -231,7 +247,7 @@ public class MainActivity extends AppCompatActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            // TODO: onListChange
+                            MainActivity.this.mainFragment.onListChange();
                         }
                     });
                 }
@@ -277,7 +293,7 @@ public class MainActivity extends AppCompatActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                // TODO: onStartConnection
+                MainActivity.this.mainFragment.onStartConnection();
             }
         });
 
@@ -309,7 +325,7 @@ public class MainActivity extends AppCompatActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    // TODO: onCloseConnection
+                    MainActivity.this.mainFragment.onCloseConnection();
                 }
             });
             MainActivity.this.connection = null;
@@ -360,6 +376,36 @@ public class MainActivity extends AppCompatActivity {
             String name = getItem(position);
             textView.setText(name);
             return view;
+        }
+    }
+
+    public class MyFragmentPageAdapter extends FragmentPagerAdapter {
+        private MainActivity main;
+
+        public MyFragmentPageAdapter(FragmentManager fm, MainActivity main) {
+            super(fm);
+            this.main = main;
+
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            return this.main.mainFragment;
+        }
+
+        @Override
+        public int getCount() {
+            return 1;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            switch (position) {
+                case 0:
+                    return "main";
+
+            }
+            return "Error";
         }
     }
 }
