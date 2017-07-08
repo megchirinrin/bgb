@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -46,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
     private ListView listView;
     private MyAdapter adapter;
     private List<String> idList = new ArrayList<String>();
+    private MediaPlayer player;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
         am.setMode(AudioManager.MODE_IN_COMMUNICATION);
 
         checkAudioPermission();
+        setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
         PeerOption options = new PeerOption();
         options.key = BuildConfig.SKYWAY_API_KEY;
@@ -99,19 +102,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                String selectedPeerId = idList.get(i);
-                if (selectedPeerId == null) {
-                    Log.d(TAG, "Selected PeerId == null");
-                    return;
-                }
-                Log.d(TAG, "SelectedPeerId: " + selectedPeerId);
-                call(selectedPeerId);
-            }
-        });
-
         showCurrentPeerId();
 
         refreshPeerList();
@@ -136,6 +126,7 @@ public class MainActivity extends AppCompatActivity {
                     connection.answer(stream);
 
                     setConnectionCallback(connection);
+                    startMusic();
 
                     runOnUiThread(new Runnable() {
                         @Override
@@ -161,6 +152,7 @@ public class MainActivity extends AppCompatActivity {
             peer.destroy();
             peer = null;
         }
+        stopMusic();
     }
 
     private void checkAudioPermission() {
@@ -289,8 +281,14 @@ public class MainActivity extends AppCompatActivity {
         }
 
         setConnectionCallback(connection);
+        startMusic();
 
-        idTextView.setText("発信中");
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                idTextView.setText("発信中");
+            }
+        });
 
         this.connection = connection;
         Log.d(TAG, "connection started!");
@@ -317,10 +315,40 @@ public class MainActivity extends AppCompatActivity {
     private void closeConnection() {
         if (connection != null) {
             connection.close();
-            idTextView.setText("通話終了");
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    idTextView.setText("通話終了");
+                }
+            });
             MainActivity.this.connection = null;
             Log.d(TAG, "Connection is Closed");
         }
+    }
+
+    private void startMusic() {
+        if (player != null) {
+            Log.d(TAG, "MediaPlayer is already created");
+            return;
+        }
+        player = MediaPlayer.create(getApplicationContext(), R.raw.bonodori1);
+        if (player == null) {
+            Log.e(TAG, "MediaPlayer is not created");
+            return;
+        }
+        player.setLooping(true);
+        player.start();
+        Log.d(TAG, "MediaPlayer started");
+    }
+
+    private void stopMusic() {
+        if (player == null) {
+            return;
+        }
+        player.stop();
+        player.reset();
+        player.release();
+        player = null;
     }
 
     private class MyAdapter extends ArrayAdapter<String> {
