@@ -1,14 +1,17 @@
 package jp.ac.u_tokyo.phoneappsample;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -18,13 +21,23 @@ import java.util.Arrays;
 import java.util.List;
 
 public class MusicActivity extends AppCompatActivity {
-
+    private String TAG = getClass().getSimpleName();
     public static final List<Music> idList = Arrays.asList(
       new Music(R.raw.bonodori1, "北海盆唄", "1"),
       new Music(R.raw.bonodori2, "東京音頭","2"),
       new Music(R.raw.bonodori3, "河内音頭","3"),
       new Music(R.raw.bonodori4,"よさこい節","4")
     );
+
+    public static Music findMusicById(String id) {
+        for (int i = 0; i < idList.size(); i++) {
+            Music music = idList.get(i);
+            if (music.id.equals(id)) {
+                return music;
+            }
+        }
+        return null;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +47,20 @@ public class MusicActivity extends AppCompatActivity {
         ListView listView = (ListView) findViewById(R.id.listview_music);
         MyAdapter adapter = new MyAdapter(this, 0, idList);
         listView.setAdapter(adapter);
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Music music = idList.get(i);
+                Intent data = new Intent();
+                Bundle bundle = new Bundle();
+                bundle.putString("music_id", music.id);
+                Log.d(TAG, "Music Click id:" + music.id);
+                data.putExtras(bundle);
+                setResult(RESULT_OK, data);
+                finish();
+            }
+        });
     }
 
     public static class Music {

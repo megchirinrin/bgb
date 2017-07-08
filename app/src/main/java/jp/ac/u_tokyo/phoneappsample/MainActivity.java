@@ -42,6 +42,7 @@ import io.skyway.Peer.PeerOption;
 
 public class MainActivity extends AppCompatActivity {
     private static final int RECORD_AUDIO_REQUEST_ID = 1;
+    private static final int MUSIC_REQUEST_ID = 2;
     private String TAG = getClass().getSimpleName();
     private Peer peer;
     private MediaConnection connection;
@@ -51,6 +52,9 @@ public class MainActivity extends AppCompatActivity {
     private MyAdapter adapter;
     private List<String> idList = new ArrayList<String>();
     private MediaPlayer player;
+
+    private MusicActivity.Music music = MusicActivity.idList.get(0);
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -378,7 +382,7 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, "MediaPlayer is already created");
             return;
         }
-        player = MediaPlayer.create(getApplicationContext(), R.raw.bonodori1);
+        player = MediaPlayer.create(getApplicationContext(), music.resourceId);
         if (player == null) {
             Log.e(TAG, "MediaPlayer is not created");
             return;
@@ -400,7 +404,26 @@ public class MainActivity extends AppCompatActivity {
 
     private void showMusicActivity(){
         Intent intent = new Intent(MainActivity.this, MusicActivity.class);
-        startActivity(intent);
+        startActivityForResult(intent, MUSIC_REQUEST_ID);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d(TAG, "onActivityResult");
+        switch (requestCode) {
+            case MUSIC_REQUEST_ID:
+                Log.d(TAG, "onActivityResult: MUSIC_REQUEST_ID");
+                if (resultCode == RESULT_OK) {
+                    Log.d(TAG, "onActivityResult: RESULT_OK");
+                    Bundle bundle = data.getExtras();
+                    Log.d(TAG, "onActivityResult: accept id:" + bundle.getString("music_id"));
+                    MusicActivity.Music music = MusicActivity.findMusicById(bundle.getString("music_id"));
+                    if (music != null) {
+                        Log.d(TAG, "onActivityResult: music_id" + music.id);
+                        this.music = music;
+                    }
+                }
+        }
     }
 
     private class MyAdapter extends ArrayAdapter<String> {
