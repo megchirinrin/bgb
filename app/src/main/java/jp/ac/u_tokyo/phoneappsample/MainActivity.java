@@ -399,6 +399,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void removeConnectionCallback(MediaConnection connection) {
         connection.on(MediaConnection.MediaEventEnum.CLOSE, null);
+        connection.on(MediaConnection.MediaEventEnum.ERROR, null);
+        connection.on(MediaConnection.MediaEventEnum.STREAM, null);
     }
 
     private void closeConnection() {
