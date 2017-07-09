@@ -146,6 +146,7 @@ public class MainActivity extends AppCompatActivity {
                                         public void onClick(DialogInterface dialogInterface, int i) {
                                             MediaStream stream = MainActivity.this.getMediaStream();
 
+                                            setMusic(connection.metadata);
                                             connection.answer(stream);
 
                                             setConnectionCallback(connection);
@@ -334,7 +335,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         CallOption option = new CallOption();
-        option.metadata = "test"; // TODO: metadata
+        option.metadata = this.music.id; // TODO: metadata
         MediaConnection connection = peer.call(peerId, stream, option);
 
         if (connection == null) {
@@ -460,12 +461,16 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG, "onActivityResult: RESULT_OK");
                     Bundle bundle = data.getExtras();
                     Log.d(TAG, "onActivityResult: accept id:" + bundle.getString("music_id"));
-                    MusicActivity.Music music = MusicActivity.findMusicById(bundle.getString("music_id"));
-                    if (music != null) {
-                        Log.d(TAG, "onActivityResult: music_id" + music.id);
-                        this.music = music;
-                    }
+                    setMusic(bundle.getString("music_id"));
                 }
+        }
+    }
+
+    private void setMusic(String id) {
+        MusicActivity.Music music = MusicActivity.findMusicById(id);
+        if (music != null) {
+            Log.d(TAG, "onActivityResult: music_id" + music.id);
+            this.music = music;
         }
     }
 

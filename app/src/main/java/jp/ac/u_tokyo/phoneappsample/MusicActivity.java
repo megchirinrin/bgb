@@ -24,7 +24,7 @@ public class MusicActivity extends AppCompatActivity {
     private String TAG = getClass().getSimpleName();
     public static final List<Music> idList = Arrays.asList(
       new Music(R.raw.bonodori1, "北海盆唄（北海道）", "1"),
-      new Music(R.raw.bonodori5),"なにゃとらや（青森県）", "2"),
+      new Music(R.raw.bonodori5,"なにゃとらや（青森県）", "2"),
       new Music(R.raw.bonodori2, "東京音頭（東京都）","3"),
       new Music(R.raw.bonodori3, "河内音頭（大阪府）","4"),
       new Music(R.raw.bonodori4,"よさこい節（高知県）","5")
