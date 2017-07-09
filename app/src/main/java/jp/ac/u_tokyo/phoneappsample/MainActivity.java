@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
     private String currentId;
     private TextView idTextView;
     private ListView listView;
+    private View callingView;
     private MyAdapter adapter;
     private List<String> idList = new ArrayList<String>();
     private MediaPlayer player;
@@ -73,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
 
         idTextView = (TextView) findViewById(R.id.id_textview);
         listView = (ListView) findViewById(R.id.listview);
+        callingView = findViewById(R.id.calling_view);
 
         adapter = new MyAdapter(this, 0, idList);
         listView.setAdapter(adapter);
@@ -156,6 +158,8 @@ public class MainActivity extends AppCompatActivity {
                                                 @Override
                                                 public void run() {
                                                     idTextView.setText("受信中");
+                                                    callingView.setVisibility(View.VISIBLE);
+                                                    listView.setVisibility(View.INVISIBLE);
                                                 }
                                             });
 
@@ -350,6 +354,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 idTextView.setText("発信中");
+                callingView.setVisibility(View.VISIBLE);
+                listView.setVisibility(View.INVISIBLE);
             }
         });
 
@@ -412,10 +418,14 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     idTextView.setText("通話終了");
+                    callingView.setVisibility(View.INVISIBLE);
+                    listView.setVisibility(View.VISIBLE);
                 }
             });
             MainActivity.this.connection = null;
             Log.d(TAG, "Connection is Closed");
+
+
 
             stopMusic();
         }
